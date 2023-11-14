@@ -13,6 +13,10 @@ export default function Contact() {
   const navigate = useNavigate()
   const contact = useContact(contactId)
 
+  if (contact === undefined) {
+    return null
+  }
+
   return (
     <div id="contact">
       <div>

@@ -16,11 +16,11 @@ export function useContacts(q?: string) {
         FROM contacts
         WHERE first_name LIKE ?
         OR last_name LIKE ?
-        ORDER BY last_name asc;`,
+        ORDER BY last_name COLLATE NOCASE asc;`,
         args: [queryStr, queryStr],
       })
     )
-    contacts = contactsResults || []
+    contacts = contactsResults
   } else {
     const { results: contactsResults } = useLiveQuery(
       db.liveRaw({
@@ -32,12 +32,12 @@ FROM
 LEFT JOIN 
     favorite_contacts ON contacts.id = favorite_contacts.contact_id
     AND favorite_contacts.user_id = ? 
-    ORDER BY contacts.last_name asc;
+    ORDER BY contacts.last_name COLLATE NOCASE asc;
       `,
         args: [dummyUserId],
       })
     )
-    contacts = contactsResults || []
+    contacts = contactsResults
   }
 
   return contacts
@@ -56,14 +56,13 @@ FROM
 LEFT JOIN 
     favorite_contacts ON contacts.id = favorite_contacts.contact_id
     AND favorite_contacts.user_id = ?
-WHERE contacts.id = ?
-
+WHERE contacts.id = ?;
       `,
       args: [dummyUserId, id],
     })
   )
 
-  const contact = contactResult?.slice(0, 1)[0] || {}
+  const contact = contactResult?.slice(0, 1)[0]
 
   return contact
 }

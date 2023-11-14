@@ -8,6 +8,10 @@ export default function EditContact() {
   const contact = useContact(contactId)
   const navigate = useNavigate()
 
+  if (contact === undefined) {
+    return null
+  }
+
   return (
     <form
       method="post"

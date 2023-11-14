@@ -12,6 +12,9 @@ export default function Root() {
   const { db } = useElectric()!
   const navigate = useNavigate()
 
+  if (contacts === undefined) {
+    return null
+  }
   return (
     <>
       <div id="sidebar">
@@ -24,7 +27,7 @@ export default function Root() {
               placeholder="Search"
               type="search"
               name="q"
-              value={q}
+              value={q || ``}
               onChange={(event) => {
                 const formData = new FormData(event.currentTarget.form)
                 const updates = Object.fromEntries(formData)
