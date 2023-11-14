@@ -15,3 +15,5 @@ export const trpc = createTRPCProxyClient<AppRouter>({
     }),
   ],
 })
+
+window.trpc = trpc

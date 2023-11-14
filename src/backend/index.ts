@@ -3,7 +3,8 @@ import { z } from "zod"
 import Database from "better-sqlite3"
 const { electrify } = require(`electric-sql/node`)
 const { authToken } = require(`../auth`)
-const { schema } = require(`../src/generated/client`)
+const { schema } = require(`../generated/client`)
+import { adapter } from "trpc-electric-sql/adapter"
 
 /**
  * Initialization of tRPC backend
@@ -18,71 +19,41 @@ const router = t.router
 const publicProcedure = t.procedure
 
 export const appRouter = router({
-  userCreate: publicProcedure
-    .input(
-      z.object({
-        id: z.string().uuid(),
-        name: z.string(),
-        created_at: z.string(),
-        optionalDelay: z.number().optional(),
-      })
-    )
-    .mutation(async (opts) => {
-      const {
-        input,
-        ctx: {
-          transact,
-          electric: { db },
-        },
-      } = opts
-      if (input.optionalDelay) {
-        await new Promise((resolve) => setTimeout(resolve, input.optionalDelay))
-      }
-
-      if (input.name === `BAD_NAME`) {
-        throw new TRPCError({
-          code: `CONFLICT`,
-          message: `This name isn't one I like to allow`,
-        })
-      }
-
-      const user = {
-        id: input.id.toString(),
-        created_at: input.created_at,
-        name: input.name,
-      }
-
-      // Run in transaction along with setting response on the request
-      // object.
-      transact(() =>
-        db.users.create({
-          data: user,
-        })
-      )
-    }),
-  userUpdateName: publicProcedure
-    .input(z.object({ id: z.string().uuid(), name: z.string() }))
-    .mutation(async (opts) => {
-      const {
-        input,
-        ctx: {
-          transact,
-          electric: { db },
-        },
-      } = opts
-      // Run in transaction along with setting response on the request
-      // object.
-      transact(() => {
-        return db.users.update({
-          data: {
-            name: input.name,
-          },
-          where: {
-            id: input.id,
-          },
-        })
-      })
-    }),
+  ping: publicProcedure.mutation(async () => {
+    console.log(`got pinged.`)
+    return `pong`
+  }),
 })
 
 export type AppRouter = typeof appRouter
+
+async function setupTRPC() {
+  const config = {
+    auth: {
+      token: authToken(),
+    },
+    // debug: true,
+    // url: ELECTRIC_URL,
+  }
+
+  // Create the better-sqlite3 database connection.
+  const conn = new Database(`local-data.db`)
+  conn.pragma(`journal_mode = WAL`)
+
+  // Instantiate your electric client.
+  console.time(`initial sync from electric-sql.`)
+  const electric = await electrify(conn, schema, config)
+  const { db } = electric
+  const [shape] = await Promise.all([db.trpc_calls.sync()])
+  await Promise.all([shape.synced])
+  console.timeEnd(`initial sync from electric-sql.`)
+
+  adapter({
+    context: { electric, instanceName: `server` },
+    appRouter,
+  })
+
+  console.log(`trpc server is now listening`)
+}
+
+setupTRPC()

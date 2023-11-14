@@ -9,6 +9,7 @@ import EditContact from "./routes/edit"
 import initElectric from "./init-electric"
 import Index from "./routes/index"
 import { ElectricalProvider } from "./context"
+import { electricRef } from "./trpc"
 
 const router = createBrowserRouter([
   {
@@ -34,6 +35,7 @@ const router = createBrowserRouter([
 
 async function render() {
   const electric = await initElectric()
+  electricRef.value = electric
   ReactDOM.createRoot(document.getElementById(`root`)!).render(
     <React.StrictMode>
       <ElectricalProvider db={electric}>
