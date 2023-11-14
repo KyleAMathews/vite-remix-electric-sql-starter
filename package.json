@@ -61,7 +61,7 @@
   },
   "scripts": {
     "backend:start": "docker compose --env-file src/backend/compose/.envrc -f src/backend/compose/docker-compose.yaml up",
-    "backend:down": "docker compose -f backend/compose/docker-compose.yaml down --volumes",
+    "backend:down": "docker compose -f src/backend/compose/docker-compose.yaml down --volumes",
     "client:generate": "npx electric-sql generate --service http://localhost:5133",
     "db:migrate": "node ./db/migrate.cjs",
     "db:psql": "node ./db/connect.cjs",
