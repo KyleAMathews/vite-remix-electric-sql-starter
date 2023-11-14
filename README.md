@@ -24,6 +24,8 @@ To clean up the example code, run `npm run cleanup-example-code` and then edit `
 ### Setup instructions
 You need Docker/Docker Compose installed.
 
+Edit `src/backend/compose/.envrc` and change the APP_NAME
+
 To run Postgres/ElectricSQL:
 
 `npm run backend:start`
