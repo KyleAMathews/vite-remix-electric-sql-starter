@@ -2,14 +2,17 @@ import React from "react"
 import ReactDOM from "react-dom/client"
 import "./index.css"
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
-import Root from "./routes/root"
 import ErrorPage from "./error-page"
-import Contact from "./routes/contact"
-import EditContact from "./routes/edit"
 import initElectric from "./init-electric"
 import Index from "./routes/index"
 import { ElectricalProvider } from "./context"
 import { electricRef } from "./trpc"
+
+// Start example routes
+import Root from "./routes/root"
+import Contact from "./routes/contact"
+import EditContact from "./routes/edit"
+// End eample routes
 
 const router = createBrowserRouter([
   {

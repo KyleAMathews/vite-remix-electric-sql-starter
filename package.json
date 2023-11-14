@@ -65,6 +65,7 @@
     "client:generate": "npx electric-sql generate --service http://localhost:5133",
     "db:migrate": "node ./db/migrate.cjs",
     "db:psql": "node ./db/connect.cjs",
+    "cleanup-example-code": "node scripts/cleanup-example-code.js",
     "dev": "cross-env NODE_ENV=development concurrently \"npx tsx watch src/backend/index.ts\" \"vite\""
   }
 }
