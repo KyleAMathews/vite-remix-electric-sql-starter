@@ -7,7 +7,8 @@ Built with:
 - [React Router](https://reactrouter.com/en/main)
 - [trpc-electric-sql](https://github.com/KyleAMathews/trpc-crdt).
 
-<video><source src="https://github.com/KyleAMathews/vite-react-router-electric-sql-starter/assets/71047/288db050-5268-497d-bcc8-227fdcfb4e32" type="video/mp4"></video>
+### Demo
+https://github.com/KyleAMathews/vite-react-router-electric-sql-starter/assets/71047/f91196c1-a04c-4e36-8477-e9d1ae977d8c
 
 ## Install
 - `npx degit KyleAMathews/vite-react-router-electric-sql-starter#main new-app`
