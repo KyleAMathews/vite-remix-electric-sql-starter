@@ -19,7 +19,11 @@ https://github.com/KyleAMathews/vite-react-router-electric-sql-starter/assets/71
 
 The starter includes some sample tables & code. You can either leave it to play with a simple example app or remove it to start from scratch.
 
-To clean up the example code, run `npm run cleanup-example-code` and then edit `src/main.tsx` to remove the example route components. You're now ready to start adding tables and routes.
+To clean up the example code, run `npm run cleanup-example-code` and then make the following edits:
+- `src/main.tsx` to remove the example route components
+- `src/init-electric.ts` to update the syncing shapes
+
+You're now ready to start adding tables and routes.
 
 ### Setup instructions
 You need Docker/Docker Compose installed.
