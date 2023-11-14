@@ -39,3 +39,7 @@ Then create the client for running queries in the browser:
 Finally start the dev server (it starts concurrently both vite for serving to the browser as well as the backend tRPC server).
 
 `npm run dev`
+
+### TODOs
+- [ ] Add production build script
+- [ ] Add auth of some sort
