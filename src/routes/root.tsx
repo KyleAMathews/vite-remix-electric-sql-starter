@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Outlet, useSearchParams, useNavigate, NavLink } from "react-router-dom"
 import { useElectric } from "../context"
-import { useContacts, createContact } from "../daos/contacts"
+import { useContacts, useCreateContact } from "../daos/contacts"
 
 export default function Root() {
   const url = new URL(window.location.href)
@@ -11,6 +11,7 @@ export default function Root() {
   const contacts = useContacts(q)
   const { db } = useElectric()!
   const navigate = useNavigate()
+  const createContact = useCreateContact()
 
   if (contacts === undefined) {
     return null
@@ -42,7 +43,7 @@ export default function Root() {
             method="post"
             onSubmit={async (event) => {
               event.preventDefault()
-              const newContact = await createContact(db)
+              const newContact = await createContact()
               navigate(`/contacts/${newContact.id}/edit`)
             }}
           >

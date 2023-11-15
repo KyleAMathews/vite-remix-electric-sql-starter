@@ -1,9 +1,9 @@
 import { useParams, useNavigate } from "react-router-dom"
 import {
   useContact,
-  deleteContact,
-  unfavoriteContact,
-  favoriteContact,
+  useDeleteContact,
+  useUnfavoriteContact,
+  useFavoriteContact,
 } from "../daos/contacts"
 import { useElectric } from "../context"
 
@@ -12,6 +12,7 @@ export default function Contact() {
   const { contactId } = useParams()
   const navigate = useNavigate()
   const contact = useContact(contactId)
+  const deleteContact = useDeleteContact()
 
   if (contact === undefined) {
     return null
@@ -59,7 +60,7 @@ export default function Contact() {
             onSubmit={async (event) => {
               event.preventDefault()
               if (confirm(`Please confirm you want to delete this record.`)) {
-                const result = await deleteContact({ db, id: contactId })
+                const result = await deleteContact({ id: contactId })
                 navigate(`/`)
               }
             }}
@@ -73,7 +74,9 @@ export default function Contact() {
 }
 
 function Favorite({ contact, db }) {
-  // yes, this is a `let` for later
+  const favoriteContact = useFavoriteContact()
+  const unfavoriteContact = useUnfavoriteContact()
+
   const favorite = !!contact.is_favorited
   return (
     <form method="post">
@@ -84,9 +87,9 @@ function Favorite({ contact, db }) {
         onClick={async (e) => {
           e.preventDefault()
           if (favorite) {
-            await unfavoriteContact({ db, id: contact.id })
+            await unfavoriteContact(contact.id)
           } else {
-            favoriteContact({ db, id: contact.id })
+            favoriteContact(contact.id)
           }
         }}
       >

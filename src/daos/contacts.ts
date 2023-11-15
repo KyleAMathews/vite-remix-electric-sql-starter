@@ -67,60 +67,80 @@ WHERE contacts.id = ?;
   return contact
 }
 
-export async function createContact(db) {
-  return db.contacts.create({
-    data: {
-      id: genUUID(),
-      first_name: ``,
-      last_name: ``,
-      website: ``,
-      avatar: ``,
-      notes: ``,
-    },
-  })
+export function useCreateContact() {
+  const { db } = useElectric()!
+
+  return () => {
+    return db.contacts.create({
+      data: {
+        id: genUUID(),
+        first_name: ``,
+        last_name: ``,
+        website: ``,
+        avatar: ``,
+        notes: ``,
+      },
+    })
+  }
 }
 
-export function updateContact({ db, id, updates }) {
-  const result = db.contacts.update({
-    data: {
-      ...updates,
-    },
-    where: {
-      id,
-    },
-  })
-  return result
+export function useUpdateContact() {
+  const { db } = useElectric()!
+
+  return ({ id, updates }) => {
+    const result = db.contacts.update({
+      data: {
+        ...updates,
+      },
+      where: {
+        id,
+      },
+    })
+    return result
+  }
 }
 
-export async function deleteContact({ db, id }) {
-  await db.favorite_contacts.deleteMany({
-    where: {
-      contact_id: id,
-    },
-  })
-  const result = await db.contacts.delete({
-    where: {
-      id,
-    },
-  })
-  return result
+export function useDeleteContact() {
+  const { db } = useElectric()!
+
+  return async ({ id }) => {
+    await db.favorite_contacts.deleteMany({
+      where: {
+        contact_id: id,
+      },
+    })
+    const result = await db.contacts.delete({
+      where: {
+        id,
+      },
+    })
+    return result
+  }
 }
 
-export function favoriteContact({ db, id }) {
-  return db.favorite_contacts.create({
-    data: {
-      id: genUUID(),
-      user_id: dummyUserId,
-      contact_id: id,
-    },
-  })
+export function useFavoriteContact() {
+  const { db } = useElectric()!
+
+  return (id) => {
+    return db.favorite_contacts.create({
+      data: {
+        id: genUUID(),
+        user_id: dummyUserId,
+        contact_id: id,
+      },
+    })
+  }
 }
 
-export function unfavoriteContact({ db, id }) {
-  return db.favorite_contacts.deleteMany({
-    where: {
-      user_id: dummyUserId,
-      contact_id: id,
-    },
-  })
+export function useUnfavoriteContact() {
+  const { db } = useElectric()!
+
+  return (id) => {
+    return db.favorite_contacts.deleteMany({
+      where: {
+        user_id: dummyUserId,
+        contact_id: id,
+      },
+    })
+  }
 }

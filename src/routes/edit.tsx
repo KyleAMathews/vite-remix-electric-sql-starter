@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom"
-import { useContact, updateContact } from "../daos/contacts"
+import { useContact, useUpdateContact } from "../daos/contacts"
 import { useElectric } from "../context"
 
 export default function EditContact() {
@@ -7,6 +7,7 @@ export default function EditContact() {
   const { db } = useElectric()
   const contact = useContact(contactId)
   const navigate = useNavigate()
+  const updateContact = useUpdateContact()
 
   if (contact === undefined) {
     return null
@@ -20,7 +21,7 @@ export default function EditContact() {
         event.preventDefault()
         const formData = new FormData(event.target)
         const updates = Object.fromEntries(formData)
-        updateContact({ db, id: contactId, updates })
+        updateContact({ id: contactId, updates })
         navigate(`/contacts/${contactId}`)
       }}
     >
