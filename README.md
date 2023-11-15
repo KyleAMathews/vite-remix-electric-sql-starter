@@ -49,6 +49,11 @@ Finally start the dev server (it starts concurrently both vite for serving to th
 
 `npm run dev`
 
+## FAQs
+
+Q) How do I change my schema?  
+A) During early development it's often easiest to blow away the schema entirely — you can run `npm run backend:down` to remove the db/electric containers/volumes and then restart and re-run migrations. Once you have a production version of the application, you'll need to run schema migrations.
+
 ### TODOs
 - [ ] Add production build script
 - [ ] Add auth of some sort
