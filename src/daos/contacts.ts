@@ -103,7 +103,7 @@ export function useUpdateContact() {
 export function useDeleteContact() {
   const { db } = useElectric()!
 
-  return async ({ id }) => {
+  return async (id: string) => {
     await db.favorite_contacts.deleteMany({
       where: {
         contact_id: id,
@@ -121,7 +121,7 @@ export function useDeleteContact() {
 export function useFavoriteContact() {
   const { db } = useElectric()!
 
-  return (id) => {
+  return (id: string) => {
     return db.favorite_contacts.create({
       data: {
         id: genUUID(),
@@ -135,7 +135,7 @@ export function useFavoriteContact() {
 export function useUnfavoriteContact() {
   const { db } = useElectric()!
 
-  return (id) => {
+  return (id: string) => {
     return db.favorite_contacts.deleteMany({
       where: {
         user_id: dummyUserId,

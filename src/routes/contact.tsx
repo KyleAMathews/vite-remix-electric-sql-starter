@@ -60,7 +60,7 @@ export default function Contact() {
             onSubmit={async (event) => {
               event.preventDefault()
               if (confirm(`Please confirm you want to delete this record.`)) {
-                const result = await deleteContact({ id: contactId })
+                await deleteContact(contactId)
                 navigate(`/`)
               }
             }}
