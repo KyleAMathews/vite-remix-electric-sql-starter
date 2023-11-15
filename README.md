@@ -52,7 +52,7 @@ Finally start the dev server (it starts concurrently both vite for serving to th
 ## FAQs
 
 Q) How do I change my schema?  
-A) During early development it's often easiest to blow away the schema entirely — you can run `npm run backend:down` to remove the db/electric containers/volumes and then restart and re-run migrations. Once you have a production version of the application, you'll need to run schema migrations.
+A) During early development it's often easiest to blow away the schema entirely — you can run `npm run backend:down` to remove the db/electric containers/volumes and then restart and re-run migrations. Once you have a production version of the application, you'll need to run schema migrations. To get the app to load, you'll also need to clear the browser schema as well by opening the devtools and deleting all stored data (in Chrome it's under the "Application" tab and the "Clear site data" button).
 
 ### TODOs
 - [ ] Add production build script
