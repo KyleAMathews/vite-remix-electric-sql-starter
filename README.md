@@ -52,5 +52,6 @@ Finally start the dev server (it starts concurrently both vite for serving to th
 ### TODOs
 - [ ] Add production build script
 - [ ] Add auth of some sort
+- [ ] how to host
 
 Contributions welome!
