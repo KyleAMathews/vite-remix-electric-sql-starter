@@ -11,12 +11,7 @@ Built with:
 https://github.com/KyleAMathews/vite-react-router-electric-sql-starter/assets/71047/f91196c1-a04c-4e36-8477-e9d1ae977d8c
 
 ## Install
-- `npx degit KyleAMathews/vite-react-router-electric-sql-starter#main new-app`
-- `cd new-app`
-- `npm install`
-- `git init`
-- `git add .`
-- `git c -m "initial commit"`
+- `npx git-dawn KyleAMathews/vite-react-router-electric-sql-starter#main new-electric-app`
 
 ## Usage
 
