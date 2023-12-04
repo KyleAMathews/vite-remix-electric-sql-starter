@@ -131,3 +131,4 @@ dist
 local-data.db
 local-data.db-shm
 local-data.db-wal
+src/generated/client/index.ts

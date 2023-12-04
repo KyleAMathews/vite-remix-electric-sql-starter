@@ -19,6 +19,7 @@
     "better-sqlite3": "^8.7.0",
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
+    "cross-var": "^1.1.0",
     "electric-sql": "^0.7.1",
     "eslint": "^8.55.0",
     "eslint-config-prettier": "^9.1.0",
@@ -61,8 +62,9 @@
   "scripts": {
     "backend:start": "docker compose --env-file src/backend/compose/.envrc -f src/backend/compose/docker-compose.yaml up",
     "backend:down": "docker compose  --env-file src/backend/compose/.envrc -f src/backend/compose/docker-compose.yaml down --volumes",
-    "build": "vite build",
+    "build": "vite build && npm run client:generate:prod",
     "client:generate": "npx electric-sql generate --service http://localhost:5133",
+    "client:generate:prod": "cross-var npx electric-sql generate --service $ELECTRIC_URL --proxy $ELECTRIC_PROXY",
     "db:migrate": "node ./db/migrate.cjs",
     "db:psql": "node ./db/connect.cjs",
     "cleanup-example-code": "node scripts/cleanup-example-code.js",
