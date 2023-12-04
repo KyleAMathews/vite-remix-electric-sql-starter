@@ -11,7 +11,7 @@ export default async function initElectric() {
       token: token,
     },
     debug: false, //DEBUG_MODE,
-    // url: ELECTRIC_URL,
+    url: import.meta.env.VITE_ELECTRIC_URL,
   }
 
   console.time(`sync`)
