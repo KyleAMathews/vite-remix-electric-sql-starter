@@ -6,8 +6,6 @@ const process = require(`process`)
 console.info(`Connecting to proxy at ${PUBLIC_DATABASE_URL}`)
 
 const args = [
-  `run`,
-  `-s`,
   `pg-migrations`,
   `apply`,
   `--database`,
@@ -15,8 +13,7 @@ const args = [
   `--directory`,
   `./db/migrations`,
 ]
-const proc = spawn(`npm`, args, {
-  cwd: __dirname,
+const proc = spawn(`npx`, args, {
   stdio: [`inherit`, `pipe`, `inherit`],
 })
 
