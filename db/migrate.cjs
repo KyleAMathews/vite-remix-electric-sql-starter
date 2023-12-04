@@ -15,7 +15,7 @@ const args = [
   `--directory`,
   `./db/migrations`,
 ]
-const proc = spawn(`yarn`, args, {
+const proc = spawn(`npm`, args, {
   cwd: __dirname,
   stdio: [`inherit`, `pipe`, `inherit`],
 })
