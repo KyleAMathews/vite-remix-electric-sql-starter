@@ -4,6 +4,7 @@ import { authToken } from "./auth"
 import sqliteWasm from "wa-sqlite/dist/wa-sqlite-async.wasm?asset"
 import { Electric, schema } from "./generated/client"
 
+console.log(`VITE_ELECTRIC_URL`, import.meta.env.VITE_ELECTRIC_URL)
 export default async function initElectric() {
   const token = authToken()
   const config = {
