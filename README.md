@@ -5,7 +5,6 @@ A starter for building [local-first apps](https://bricolage.io/some-notes-on-loc
 Built with:
 - [Vite](https://vitejs.dev/)
 - [React Router](https://reactrouter.com/en/main)
-- [trpc-electric-sql](https://github.com/KyleAMathews/trpc-crdt).
 
 ### Demo
 https://github.com/KyleAMathews/vite-react-router-electric-sql-starter/assets/71047/f91196c1-a04c-4e36-8477-e9d1ae977d8c
@@ -40,7 +39,7 @@ Then create the client for running queries in the browser:
 
 `npm run client:generate`
 
-Finally start the dev server (it starts concurrently both vite for serving to the browser as well as the backend tRPC server).
+Finally start the dev server (it starts concurrently both vite for serving to the browser as well as the backend server).
 
 `npm run dev`
 

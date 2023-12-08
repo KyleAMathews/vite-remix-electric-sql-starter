@@ -6,7 +6,6 @@ import ErrorPage from "./error-page"
 import initElectric from "./init-electric"
 import Index from "./routes/index"
 import { ElectricalProvider } from "./context"
-import { electricRef } from "./trpc"
 
 // Start example routes
 import Root from "./routes/root"
@@ -38,7 +37,6 @@ const router = createBrowserRouter([
 
 async function render() {
   const electric = await initElectric()
-  electricRef.value = electric
   ReactDOM.createRoot(document.getElementById(`root`)!).render(
     <React.StrictMode>
       <ElectricalProvider db={electric}>
