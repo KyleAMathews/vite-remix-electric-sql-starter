@@ -19,7 +19,7 @@
     "better-sqlite3": "^8.7.0",
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
-    "electric-sql": "^0.7.1",
+    "electric-sql": "^0.8.1",
     "eslint": "^8.55.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-react": "^1.1.7",
