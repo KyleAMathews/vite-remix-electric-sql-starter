@@ -1,9 +1,10 @@
 {
-  "name": "vite-react-router-electric-sql-starter-party",
+  "name": "vite-electric-sql-starter",
   "main": "server.ts",
   "compatibilityDate": "2023-12-11",
-  "define": {
-    "ELECTRIC_ORIGIN": "'localhost:5133/'"
+  "serve": {
+    "path": "dist",
+    "singlePageApp": true
   }
 }
 

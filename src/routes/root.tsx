@@ -13,6 +13,7 @@ export default function Root() {
   const navigate = useNavigate()
   const createContact = useCreateContact()
 
+  console.log({ contacts })
   if (contacts === undefined) {
     return null
   }
