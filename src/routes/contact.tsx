@@ -1,22 +1,43 @@
-import { useParams, useNavigate } from "react-router-dom"
+import { useLocation, useNavigate, useParams } from "react-router-dom"
 import {
-  useContact,
   useDeleteContact,
   useUnfavoriteContact,
   useFavoriteContact,
+  contactQuery,
 } from "../daos/contacts"
+import { Electric } from "../generated/client"
+import { useElectricData } from "electric-query"
 import { useElectric } from "../context"
 
+const queries = ({
+  db,
+  dummyUserId,
+  id,
+}: {
+  db: Electric[`db`]
+  id: string
+  dummyUserId: string
+}) => {
+  return {
+    contact: db.liveRaw(contactQuery({ id, dummyUserId })),
+  }
+}
+Contact.queries = queries
+
 export default function Contact() {
-  const { db } = useElectric()!
-  const { contactId } = useParams()
+  // Query for contact.
+  const location = useLocation()
+  const { contact: contactArray } = useElectricData(
+    location.pathname + location.search
+  )
+  const contact = contactArray[0]
+
+  // Get navigate function and mutation function
   const navigate = useNavigate()
-  const contact = useContact(contactId)
   const deleteContact = useDeleteContact()
 
-  if (contact === undefined) {
-    return null
-  }
+  const { db } = useElectric()
+  const { contactId } = useParams()
 
   return (
     <div id="contact">
@@ -50,7 +71,8 @@ export default function Contact() {
         <div>
           <form
             action="edit"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault()
               navigate(`/contacts/${contactId}/edit`)
             }}
           >

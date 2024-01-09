@@ -43,12 +43,9 @@ LEFT JOIN
   return contacts
 }
 
-export function useContact(id: string) {
-  const { db } = useElectric()!
-
-  const { results: contactResult } = useLiveQuery(
-    db.liveRaw({
-      sql: `SELECT 
+export const contactQuery = ({ dummyUserId, id }) => {
+  return {
+    sql: `SELECT 
     contacts.*,
     CASE WHEN favorite_contacts.contact_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_favorited
 FROM 
@@ -58,8 +55,15 @@ LEFT JOIN
     AND favorite_contacts.user_id = ?
 WHERE contacts.id = ?;
       `,
-      args: [dummyUserId, id],
-    })
+    args: [dummyUserId, id],
+  }
+}
+
+export function useContact(id: string) {
+  const { db } = useElectric()!
+
+  const { results: contactResult } = useLiveQuery(
+    db.liveRaw(contactQuery({ id, dummyUserId }))
   )
 
   const contact = contactResult?.slice(0, 1)[0]

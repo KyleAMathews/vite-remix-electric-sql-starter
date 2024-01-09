@@ -1,17 +1,37 @@
-import { useParams, useNavigate } from "react-router-dom"
-import { useContact, useUpdateContact } from "../daos/contacts"
-import { useElectric } from "../context"
+import { useParams, useLocation, useNavigate } from "react-router-dom"
+import { useUpdateContact, contactQuery } from "../daos/contacts"
+import { Electric } from "../generated/client"
+import { useElectricData } from "electric-query"
+
+const queries = ({
+  db,
+  dummyUserId,
+  id,
+}: {
+  db: Electric[`db`]
+  dummyUserId: string
+  id: string
+}) => {
+  return {
+    contact: db.liveRaw(contactQuery({ id, dummyUserId })),
+  }
+}
+EditContact.queries = queries
 
 export default function EditContact() {
-  const { contactId } = useParams()
-  const { db } = useElectric()
-  const contact = useContact(contactId)
-  const navigate = useNavigate()
-  const updateContact = useUpdateContact()
+  // Query for contact.
+  const location = useLocation()
+  const { contact: contactArray } = useElectricData(
+    location.pathname + location.search
+  )
+  const contact = contactArray[0]
 
-  if (contact === undefined) {
-    return null
-  }
+  // Get contactId & navigate function for navigating after submitting form.
+  const { contactId } = useParams()
+  const navigate = useNavigate()
+
+  // Mutation function.
+  const updateContact = useUpdateContact()
 
   return (
     <form
@@ -67,12 +87,7 @@ export default function EditContact() {
       </label>
       <p>
         <button type="submit">Save</button>
-        <button
-          type="button"
-          onClick={() => {
-            navigate(-1)
-          }}
-        >
+        <button type="button" onClick={() => navigate(-1)}>
           Cancel
         </button>
       </p>

@@ -6,14 +6,13 @@ import { useContacts, useCreateContact } from "../daos/contacts"
 export default function Root() {
   const url = new URL(window.location.href)
   const qUrl = url.searchParams.get(`q`)
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [_, setSearchParams] = useSearchParams()
   const [q, setQ] = useState(qUrl)
   const contacts = useContacts(q)
-  const { db } = useElectric()!
   const navigate = useNavigate()
   const createContact = useCreateContact()
 
-  if (contacts === undefined) {
+  if (contacts === null) {
     return null
   }
   return (
@@ -52,7 +51,7 @@ export default function Root() {
         </div>
         <nav>
           <h2>Contacts ({contacts?.length || 0})</h2>
-          {contacts.length ? (
+          {contacts?.length ? (
             <ul>
               {contacts.map((contact) => (
                 <li key={contact.id}>
