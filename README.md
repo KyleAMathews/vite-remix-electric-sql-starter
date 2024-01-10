@@ -19,7 +19,6 @@ The starter includes some sample tables & code. You can either leave it to play 
 
 To clean up the example code, run `npm run cleanup-example-code` and then make the following edits:
 - `src/main.tsx` to remove the example route components
-- `src/init-electric.ts` to update which tables are synced 
 
 You're now ready to start adding tables and routes.
 
