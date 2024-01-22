@@ -1,21 +1,6 @@
 export default [
   {
     "statements": [
-      "CREATE TABLE \"trpc_calls\" (\n  \"id\" TEXT NOT NULL,\n  \"createdat\" TEXT NOT NULL,\n  \"elapsedms\" INTEGER,\n  \"path\" TEXT NOT NULL,\n  \"input\" TEXT,\n  \"type\" TEXT NOT NULL,\n  \"state\" TEXT NOT NULL,\n  \"clientid\" TEXT NOT NULL,\n  \"response\" TEXT,\n  CONSTRAINT \"trpc_calls_pkey\" PRIMARY KEY (\"id\")\n) WITHOUT ROWID;\n",
-      "-- Toggles for turning the triggers on and off\nINSERT OR IGNORE INTO _electric_trigger_settings(tablename,flag) VALUES ('main.trpc_calls', 1);",
-      "  /* Triggers for table trpc_calls */\n\n  -- ensures primary key is immutable\n  DROP TRIGGER IF EXISTS update_ensure_main_trpc_calls_primarykey;",
-      "CREATE TRIGGER update_ensure_main_trpc_calls_primarykey\n  BEFORE UPDATE ON \"main\".\"trpc_calls\"\nBEGIN\n  SELECT\n    CASE\n      WHEN old.\"id\" != new.\"id\" THEN\n      \t\tRAISE (ABORT, 'cannot change the value of column id as it belongs to the primary key')\n    END;\nEND;",
-      "-- Triggers that add INSERT, UPDATE, DELETE operation to the _opslog table\nDROP TRIGGER IF EXISTS insert_main_trpc_calls_into_oplog;",
-      "CREATE TRIGGER insert_main_trpc_calls_into_oplog\n   AFTER INSERT ON \"main\".\"trpc_calls\"\n   WHEN 1 == (SELECT flag from _electric_trigger_settings WHERE tablename == 'main.trpc_calls')\nBEGIN\n  INSERT INTO _electric_oplog (namespace, tablename, optype, primaryKey, newRow, oldRow, timestamp)\n  VALUES ('main', 'trpc_calls', 'INSERT', json_object('id', new.\"id\"), json_object('clientid', new.\"clientid\", 'createdat', new.\"createdat\", 'elapsedms', new.\"elapsedms\", 'id', new.\"id\", 'input', new.\"input\", 'path', new.\"path\", 'response', new.\"response\", 'state', new.\"state\", 'type', new.\"type\"), NULL, NULL);\nEND;",
-      "DROP TRIGGER IF EXISTS update_main_trpc_calls_into_oplog;",
-      "CREATE TRIGGER update_main_trpc_calls_into_oplog\n   AFTER UPDATE ON \"main\".\"trpc_calls\"\n   WHEN 1 == (SELECT flag from _electric_trigger_settings WHERE tablename == 'main.trpc_calls')\nBEGIN\n  INSERT INTO _electric_oplog (namespace, tablename, optype, primaryKey, newRow, oldRow, timestamp)\n  VALUES ('main', 'trpc_calls', 'UPDATE', json_object('id', new.\"id\"), json_object('clientid', new.\"clientid\", 'createdat', new.\"createdat\", 'elapsedms', new.\"elapsedms\", 'id', new.\"id\", 'input', new.\"input\", 'path', new.\"path\", 'response', new.\"response\", 'state', new.\"state\", 'type', new.\"type\"), json_object('clientid', old.\"clientid\", 'createdat', old.\"createdat\", 'elapsedms', old.\"elapsedms\", 'id', old.\"id\", 'input', old.\"input\", 'path', old.\"path\", 'response', old.\"response\", 'state', old.\"state\", 'type', old.\"type\"), NULL);\nEND;",
-      "DROP TRIGGER IF EXISTS delete_main_trpc_calls_into_oplog;",
-      "CREATE TRIGGER delete_main_trpc_calls_into_oplog\n   AFTER DELETE ON \"main\".\"trpc_calls\"\n   WHEN 1 == (SELECT flag from _electric_trigger_settings WHERE tablename == 'main.trpc_calls')\nBEGIN\n  INSERT INTO _electric_oplog (namespace, tablename, optype, primaryKey, newRow, oldRow, timestamp)\n  VALUES ('main', 'trpc_calls', 'DELETE', json_object('id', old.\"id\"), NULL, json_object('clientid', old.\"clientid\", 'createdat', old.\"createdat\", 'elapsedms', old.\"elapsedms\", 'id', old.\"id\", 'input', old.\"input\", 'path', old.\"path\", 'response', old.\"response\", 'state', old.\"state\", 'type', old.\"type\"), NULL);\nEND;"
-    ],
-    "version": "1"
-  },
-  {
-    "statements": [
       "CREATE TABLE \"contacts\" (\n  \"id\" TEXT NOT NULL,\n  \"first_name\" TEXT,\n  \"last_name\" TEXT,\n  \"website\" TEXT,\n  \"avatar\" TEXT,\n  \"notes\" TEXT,\n  CONSTRAINT \"contacts_pkey\" PRIMARY KEY (\"id\")\n) WITHOUT ROWID;\n",
       "-- Toggles for turning the triggers on and off\nINSERT OR IGNORE INTO _electric_trigger_settings(tablename,flag) VALUES ('main.contacts', 1);",
       "  /* Triggers for table contacts */\n\n  -- ensures primary key is immutable\n  DROP TRIGGER IF EXISTS update_ensure_main_contacts_primarykey;",
@@ -27,7 +12,7 @@ export default [
       "DROP TRIGGER IF EXISTS delete_main_contacts_into_oplog;",
       "CREATE TRIGGER delete_main_contacts_into_oplog\n   AFTER DELETE ON \"main\".\"contacts\"\n   WHEN 1 == (SELECT flag from _electric_trigger_settings WHERE tablename == 'main.contacts')\nBEGIN\n  INSERT INTO _electric_oplog (namespace, tablename, optype, primaryKey, newRow, oldRow, timestamp)\n  VALUES ('main', 'contacts', 'DELETE', json_object('id', old.\"id\"), NULL, json_object('avatar', old.\"avatar\", 'first_name', old.\"first_name\", 'id', old.\"id\", 'last_name', old.\"last_name\", 'notes', old.\"notes\", 'website', old.\"website\"), NULL);\nEND;"
     ],
-    "version": "2"
+    "version": "1"
   },
   {
     "statements": [
@@ -46,6 +31,6 @@ export default [
       "DROP TRIGGER IF EXISTS compensation_update_main_favorite_contacts_contact_id_into_oplog;",
       "CREATE TRIGGER compensation_update_main_favorite_contacts_contact_id_into_oplog\n   AFTER UPDATE ON \"main\".\"favorite_contacts\"\n   WHEN 1 == (SELECT flag from _electric_trigger_settings WHERE tablename == 'main.contacts') AND\n        1 == (SELECT value from _electric_meta WHERE key == 'compensations')\nBEGIN\n  INSERT INTO _electric_oplog (namespace, tablename, optype, primaryKey, newRow, oldRow, timestamp)\n  SELECT 'main', 'contacts', 'COMPENSATION', json_object('id', \"id\"), json_object('id', \"id\"), NULL, NULL\n  FROM \"main\".\"contacts\" WHERE \"id\" = new.\"contact_id\";\nEND;"
     ],
-    "version": "3"
+    "version": "2"
   }
 ]
