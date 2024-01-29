@@ -3,18 +3,20 @@ import ReactDOM from "react-dom/client"
 import "./index.css"
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import ErrorPage from "./error-page"
-import Index from "./routes/index"
 import { ElectricalProvider } from "./context"
 import { initElectric, electricSqlLoader } from "electric-query"
 import { Electric, schema } from "./generated/client"
 import sqliteWasm from "wa-sqlite/dist/wa-sqlite-async.wasm?asset"
 import { authToken, dummyUserId } from "./auth"
 
+import Index from "./routes/index"
+
 // Start example routes
 import Root from "./routes/root"
 import Contact from "./routes/contact"
 import EditContact from "./routes/edit"
-// End eample routes
+// End example routes
+
 const shapes = ({ db }) => [
   {
     shape: db.contacts.sync(),
