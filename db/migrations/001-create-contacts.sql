@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS contacts (
     first_name TEXT,
     last_name TEXT,
     website TEXT,
-    avatar TEXT, -- Assuming this is a URL to the avatar image
+    avatar TEXT,
     notes TEXT
 );
 
