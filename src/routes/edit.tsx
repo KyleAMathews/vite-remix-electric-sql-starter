@@ -1,6 +1,6 @@
 import { useParams, useLocation, useNavigate } from "react-router-dom"
 import { useUpdateContact, contactQuery } from "../daos/contacts"
-import { Electric } from "../generated/client"
+import { Electric, Contacts } from "../generated/client"
 import { useElectricData } from "electric-query"
 
 const queries = ({
@@ -13,7 +13,7 @@ const queries = ({
   id: string
 }) => {
   return {
-    contact: db.liveRaw(contactQuery({ id, dummyUserId })),
+    contacts: db.liveRaw(contactQuery({ id, dummyUserId })),
   }
 }
 EditContact.queries = queries
@@ -21,10 +21,10 @@ EditContact.queries = queries
 export default function EditContact() {
   // Query for contact.
   const location = useLocation()
-  const { contact: contactArray } = useElectricData(
+  const { contacts }: { contacts: Contacts[] } = useElectricData(
     location.pathname + location.search
   )
-  const contact = contactArray[0]
+  const contact = contacts[0]
 
   // Get contactId & navigate function for navigating after submitting form.
   const { contactId } = useParams()

@@ -5,7 +5,7 @@ import {
   useFavoriteContact,
   contactQuery,
 } from "../daos/contacts"
-import { Electric } from "../generated/client"
+import { Electric, Contacts } from "../generated/client"
 import { useElectricData } from "electric-query"
 import { useElectric } from "../context"
 
@@ -27,22 +27,22 @@ Contact.queries = queries
 export default function Contact() {
   // Query for contact.
   const location = useLocation()
-  const { contact: contactArray } = useElectricData(
+  const { contacts }: { contacts: Contacts[] } = useElectricData(
     location.pathname + location.search
   )
-  const contact = contactArray[0]
+  const contact = contacts[0]
 
   // Get navigate function and mutation function
   const navigate = useNavigate()
   const deleteContact = useDeleteContact()
 
-  const { db } = useElectric()
+  const { db } = useElectric()!
   const { contactId } = useParams()
 
   return (
     <div id="contact">
       <div>
-        <img key={contact.avatar} src={contact.avatar || null} />
+        <img key={contact.avatar} src={contact.avatar || ``} />
       </div>
 
       <div>
@@ -95,7 +95,7 @@ export default function Contact() {
   )
 }
 
-function Favorite({ contact, db }) {
+function Favorite({ contact }: { contact: Contacts }) {
   const favoriteContact = useFavoriteContact()
   const unfavoriteContact = useUnfavoriteContact()
 
