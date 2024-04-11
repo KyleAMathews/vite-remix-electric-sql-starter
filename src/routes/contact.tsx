@@ -19,7 +19,7 @@ const queries = ({
   dummyUserId: string
 }) => {
   return {
-    contact: db.liveRaw(contactQuery({ id, dummyUserId })),
+    contacts: db.liveRaw(contactQuery({ id, dummyUserId })),
   }
 }
 Contact.queries = queries

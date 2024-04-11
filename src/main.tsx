@@ -96,10 +96,8 @@ async function render() {
     appName: `my-app`,
     schema,
     sqliteWasmPath: sqliteWasm,
+    token: authToken(),
     config: {
-      auth: {
-        token: authToken(),
-      },
       debug: false, //DEBUG_MODE,
       url: import.meta.env.VITE_ELECTRIC_URL,
     },
