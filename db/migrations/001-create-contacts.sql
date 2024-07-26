@@ -6,5 +6,3 @@ CREATE TABLE IF NOT EXISTS contacts (
     avatar TEXT,
     notes TEXT
 );
-
-ALTER TABLE contacts ENABLE ELECTRIC;
