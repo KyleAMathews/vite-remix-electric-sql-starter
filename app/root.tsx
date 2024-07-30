@@ -13,6 +13,7 @@ import { Theme } from "@radix-ui/themes"
 import { useShape, preloadShape } from "@electric-sql/react"
 import { contactsShape } from "./shapes-defs"
 import { TextField, Flex, Heading, Text, Button, Link } from "@radix-ui/themes"
+import "@fontsource/instrument-serif/latin.css"
 import "@radix-ui/themes/styles.css"
 import "../.cache/typography.css"
 

@@ -9,8 +9,9 @@
   },
   "dependencies": {
     "@databases/pg-migrations": "^5.0.3",
-    "@electric-sql/next": "^0.1.1",
-    "@electric-sql/react": "^0.0.10",
+    "@electric-sql/next": "^0.2.0",
+    "@electric-sql/react": "^0.1.0",
+    "@fontsource/instrument-serif": "^5.0.20",
     "@radix-ui/themes": "^3.1.1",
     "@remix-run/dev": "^2.10.3",
     "@remix-run/node": "^2.10.3",

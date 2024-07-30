@@ -5,7 +5,7 @@ A starter for building [local-first apps](https://bricolage.io/some-notes-on-loc
 Built with:
 - [Vite](https://vitejs.dev/)
 - [React Router](https://reactrouter.com/en/main)
-- [Electric Query](https://github.com/KyleAMathews/electric-query)
+- [ElectricSQL](https://github.com/electric-sql/electric-next)
 
 ### Demo
 https://github.com/KyleAMathews/vite-react-router-electric-sql-starter/assets/71047/f91196c1-a04c-4e36-8477-e9d1ae977d8c
