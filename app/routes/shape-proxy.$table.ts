@@ -29,7 +29,6 @@ export async function loader({
   let resp = await fetch(originUrl.toString())
   if (resp.headers.get(`content-encoding`)) {
     const headers = new Headers(resp.headers)
-    console.log({ headers })
     headers.delete(`content-encoding`)
     headers.delete(`content-length`)
     resp = new Response(resp.body, { ...resp, headers })
