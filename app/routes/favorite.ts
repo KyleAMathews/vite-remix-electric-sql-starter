@@ -6,7 +6,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
   const body = await request.formData()
   const favorite = body.get(`favorite`)
   const contact_id = body.get(`contact_id`)
-  console.log({ favorite, contact_id })
+  console.log({ time: new Date().toJSON(), favorite, contact_id })
   const user_id = `32d1f1e5-7e5f-43f8-bff2-bb52dd48ab58`
   // Add favorite
   if (favorite === `true`) {

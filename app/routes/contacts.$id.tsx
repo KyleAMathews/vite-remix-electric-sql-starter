@@ -1,5 +1,5 @@
 import { useParams, useFetcher } from "@remix-run/react"
-import { useShape, preloadShape } from "@electric-sql/react"
+import { useShape, getShapeStream, preloadShape } from "@electric-sql/react"
 import type {
   ClientLoaderFunctionArgs,
   ClientActionFunctionArgs,
@@ -17,10 +17,8 @@ export const clientLoader = async ({
 
 export default function Contact() {
   const params = useParams()
-  console.log({ id: params.id })
   const { data: contact, isUpToDate: isContactsReady } = useShape(
     contactsShape((res) => {
-      console.log(res.data)
       const copy = { ...res }
       copy.data = copy.data.find((c) => {
         return c.id === params.id
@@ -29,23 +27,23 @@ export default function Contact() {
       return copy
     })
   )
-  const { data: isFavorited, isUpToDate: isFavoritesRady } = useShape(
+  const { data: favorite, isUpToDate: isFavoritesReady } = useShape(
     favoriteContactsShape((res) => {
       const copy = { ...res }
-      copy.data = copy.data.some(
+      copy.data = copy.data.find(
         (favorite) => favorite.contact_id === params.id
       )
       return copy
     })
   )
 
-  console.log({ isFavorited })
+  console.log({ favorite })
 
   if (!contact) {
     return 404
   }
 
-  if (!isFavoritesRady || !isContactsReady) {
+  if (!isFavoritesReady || !isContactsReady) {
     return `loading`
   }
 
@@ -65,7 +63,7 @@ export default function Contact() {
             <i>No Name</i>
           )}
           {` `}
-          <Favorite isFavorited={isFavorited} id={contact.id} />
+          <Favorite favorite={favorite} contact_id={contact.id} />
         </h1>
 
         {contact.website && (
@@ -116,18 +114,56 @@ function formDataToObject(formData) {
   return object
 }
 
-export const clientAction = async ({
-  request,
-  params,
-  serverAction,
-}: ClientActionFunctionArgs) => {
-  const body = await request.formData()
-  console.log({ body: formDataToObject(body) })
+export const clientAction = async ({ request }: ClientActionFunctionArgs) => {
+  async function findUpdate({ id, contact_id }) {
+    console.log(`finding the update`)
+    const favoriteContactsShapeStream = getShapeStream(favoriteContactsShape())
+    return new Promise((resolve) => {
+      const unsubscribe = favoriteContactsShapeStream.subscribe((messages) => {
+        console.log({ messages })
+        if (
+          messages.some((message) => {
+            if (
+              message.headers.action &&
+              message.key?.includes(`favorite_contacts`)
+            ) {
+              console.log({ message })
+              return (
+                message.value?.id === id ||
+                message.value?.contact_id === contact_id
+              )
+            } else {
+              return false
+            }
+          })
+        ) {
+          unsubscribe()
+          resolve(null)
+        }
+      })
+    })
+  }
+
   console.log(`start form submit`, performance.now())
+  const body = await request.formData()
+  const findUpdatePromise = findUpdate({
+    id: body.get(`favorite_id`),
+    contact_id: body.get(`contact_id`),
+  })
+  console.time(`post form`)
   const fetchPromise = fetch(`/favorite`, {
     method: `POST`,
     body,
+  }).then((res) => {
+    console.timeEnd(`post form`)
+    return res
   })
+
+  // TODO
+  // - implement
+  // - how to handle errors? Abort listening?
+  // - perhaps a default timeout that throws error?
+  // - and/or function returns promise + unsubscribe function?
   // let updatePromise
   // if (body.get(`favorite`) === `true`) {
   // updatePromise = stream.awaitInsert(
@@ -138,40 +174,44 @@ export const clientAction = async ({
   // (message) => message.value.contact_id === body.get(`id`)
   // )
   // }
-  // await Promise.all([updatePromise, fetchPromise])
+  await Promise.all([findUpdatePromise, fetchPromise])
 
+  console.log(`leaving`)
   return fetchPromise
 }
 
-function Favorite({ isFavorited, id }: { isFavorited: boolean; id: string }) {
+function Favorite({
+  favorite,
+  contact_id,
+}: {
+  favorite: Record<string, any> | null
+  contact_id: string
+}) {
   const fetcher = useFetcher()
-  const favorite = fetcher.formData
+  const isFavorited = fetcher.formData
     ? fetcher.formData.get(`favorite`) === `true`
-    : isFavorited
-  console.log({
-    fetcher,
-    formData: fetcher?.formData?.get(`favorite`),
-    favorite,
-  })
+    : !!favorite
   console.log(`fetcher state`, fetcher.state, performance.now())
   console.log(
     `shape & form in sync`,
     {
       form: fetcher?.formData?.get(`favorite`),
       isFavorited,
+      favorite,
     },
     performance.now()
   )
 
   return (
     <fetcher.Form method="post">
-      <input type="hidden" name="contact_id" value={id} />
+      <input type="hidden" name="favorite_id" value={favorite?.id} />
+      <input type="hidden" name="contact_id" value={contact_id} />
       <button
         name="favorite"
-        value={favorite ? `false` : `true`}
-        aria-label={favorite ? `Remove from favorites` : `Add to favorites`}
+        value={isFavorited ? `false` : `true`}
+        aria-label={isFavorited ? `Remove from favorites` : `Add to favorites`}
       >
-        {favorite ? `★` : `☆`}
+        {isFavorited ? `★` : `☆`}
       </button>
     </fetcher.Form>
   )
