@@ -31,7 +31,11 @@ export async function loader({
     const headers = new Headers(resp.headers)
     headers.delete(`content-encoding`)
     headers.delete(`content-length`)
-    resp = new Response(resp.body, { ...resp, headers })
+    resp = new Response(resp.body, {
+      status: resp.status,
+      statusText: resp.statusText,
+      headers,
+    })
   }
   return resp
 }
