@@ -92,7 +92,20 @@ export default function App() {
   const qUrl = url.searchParams.get(`q`)
   const [_, setSearchParams] = useSearchParams()
   const [q, setQ] = useState(qUrl)
-  const { data: contacts, isUpToDate } = useShape(contactsShape())
+  console.log({ qUrl, q })
+  const { data: contacts, isUpToDate } = useShape(
+    contactsShape((res) => {
+      const copy = { ...res }
+      // Filter down list by search query.
+      copy.data = copy.data.filter((c) => {
+        return `${c.first_name} ${c.last_name}`
+          .toLowerCase()
+          .includes(q === null ? `` : q.toLowerCase())
+      })
+
+      return copy
+    })
+  )
   const { data: favoritedContacts } = useShape(favoriteContactsShape())
 
   if (!isUpToDate) {
