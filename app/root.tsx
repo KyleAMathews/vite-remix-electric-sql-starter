@@ -13,7 +13,7 @@ import {
 } from "@remix-run/react"
 import { Theme } from "@radix-ui/themes"
 import { useShape, preloadShape, getShapeStream } from "@electric-sql/react"
-import { contactsShape } from "./shapes-defs"
+import { contactsShape, favoriteContactsShape } from "./shapes-defs"
 import { TextField, Flex, Heading, Text, Button, Link } from "@radix-ui/themes"
 import "@fontsource/instrument-serif/latin.css"
 import "@radix-ui/themes/styles.css"
@@ -93,6 +93,7 @@ export default function App() {
   const [_, setSearchParams] = useSearchParams()
   const [q, setQ] = useState(qUrl)
   const { data: contacts, isUpToDate } = useShape(contactsShape())
+  const { data: favoritedContacts } = useShape(favoriteContactsShape())
 
   if (!isUpToDate) {
     return `loading`
@@ -127,14 +128,7 @@ export default function App() {
               <div id="search-spinner" aria-hidden hidden={true} />
               <div className="sr-only" aria-live="polite"></div>
             </form>
-            <Form
-              method="post"
-              // onSubmit={async (event) => {
-              // event.preventDefault()
-              // const newContact = await createContact()
-              // navigate(`/contacts/${newContact.id}/edit`)
-              // }}
-            >
+            <Form method="post">
               <button type="submit" name="intent" value="new-contact">
                 New
               </button>
@@ -165,7 +159,9 @@ export default function App() {
                               <i>No Name</i>
                             )}
                             {` `}
-                            {!!contact.is_favorited && <span>★</span>}
+                            {favoritedContacts.some(
+                              (favorite) => favorite.contact_id === contact.id
+                            ) && <span>★</span>}
                           </NavLink>
                         </Link>
                       </li>
