@@ -66,7 +66,7 @@ export const clientAction = async ({ request }: ClientActionFunctionArgs) => {
 
   const res = await fetchPromise
   const body = await res.json()
-  return redirect(`/contacts/${body.id}`)
+  return redirect(`/contacts/${body.id}/edit`)
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {

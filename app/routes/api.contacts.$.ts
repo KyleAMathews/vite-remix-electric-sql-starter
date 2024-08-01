@@ -3,14 +3,12 @@ const { Request, json, LoaderArgs, installGlobals } = nodePkg
 import type { ActionFunctionArgs } from "@remix-run/node"
 import { db } from "../utils/db"
 
-export async function action({ params, request }: ActionFunctionArgs) {
-  console.log({ params })
+export async function action({ request }: ActionFunctionArgs) {
   if (request.method === `POST`) {
     const result = await db.query(
       `INSERT INTO contacts (id, first_name, last_name, website, avatar, notes)
          VALUES (gen_random_uuid(), '', '', '', '', '') RETURNING id;`
     )
-    console.log(`result`, result)
     return json({ id: result.rows[0].id })
   }
   if (request.method === `PUT`) {
@@ -41,6 +39,12 @@ export async function action({ params, request }: ActionFunctionArgs) {
   if (request.method === `DELETE`) {
     const formData = await request.formData()
     const updatedData = Object.fromEntries(formData)
+    await db.query(
+      `DELETE FROM favorite_contacts
+       WHERE contact_id = $1;`,
+      [updatedData.id]
+    )
+
     await db.query(
       `DELETE FROM contacts
        WHERE id = $1;`,
