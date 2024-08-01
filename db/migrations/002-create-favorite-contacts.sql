@@ -4,5 +4,3 @@ CREATE TABLE IF NOT EXISTS favorite_contacts (
     contact_id UUID NOT NULL,
     FOREIGN KEY (contact_id) REFERENCES contacts(id)
 );
-
-ALTER TABLE favorite_contacts ENABLE ELECTRIC;
