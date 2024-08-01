@@ -15,7 +15,6 @@ export async function action({ params, request }: ActionFunctionArgs) {
   }
   if (request.method === `PUT`) {
     const formData = await request.formData()
-    console.log({ formData })
     const updatedData = Object.fromEntries(formData)
     const values = [
       updatedData.first_name,
@@ -35,6 +34,17 @@ export async function action({ params, request }: ActionFunctionArgs) {
          notes = $5
        WHERE id = $6;`,
       values
+    )
+
+    return `ok`
+  }
+  if (request.method === `DELETE`) {
+    const formData = await request.formData()
+    const updatedData = Object.fromEntries(formData)
+    await db.query(
+      `DELETE FROM contacts
+       WHERE id = $1;`,
+      [updatedData.id]
     )
 
     return `ok`

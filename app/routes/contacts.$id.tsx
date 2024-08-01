@@ -1,4 +1,10 @@
-import { useParams, useFetcher, useNavigate } from "@remix-run/react"
+import {
+  useParams,
+  redirect,
+  useFetcher,
+  useNavigate,
+  Form,
+} from "@remix-run/react"
 import { useShape, getShapeStream, preloadShape } from "@electric-sql/react"
 import type {
   ClientLoaderFunctionArgs,
@@ -13,6 +19,64 @@ export const clientLoader = async ({
   serverLoader,
 }: ClientLoaderFunctionArgs) => {
   return await preloadShape(contactsShape())
+}
+
+export const clientAction = async ({ request }: ClientActionFunctionArgs) => {
+  const body = await request.formData()
+
+  if (body.get(`intent`) === `delete`) {
+    const contactsShapeStream = getShapeStream(contactsShape())
+    // Match the delete
+    const findUpdatePromise = matchStream({
+      stream: contactsShapeStream,
+      operations: [`delete`],
+      matchFn: ({ message }) => message.value.id === body.get(`id`),
+    })
+
+    let fetchPromise
+    if (confirm(`Please confirm you want to delete this record.`)) {
+      fetchPromise = fetch(`/api/contacts/${body.get(`id`)}`, {
+        method: `DELETE`,
+        body,
+      })
+    }
+
+    await Promise.all([findUpdatePromise, fetchPromise])
+    return redirect(`/`)
+  } else {
+    const favoriteContactsShapeStream = getShapeStream(favoriteContactsShape())
+    // Match to update stream.
+    const findUpdatePromise = matchStream({
+      stream: favoriteContactsShapeStream,
+      operations: [`insert`, `delete`],
+      matchFn: ({ operationType, message }) => {
+        if (operationType === `insert`) {
+          return message.value.contact_id === body.get(`contact_id`)
+        } else if (operationType === `delete`) {
+          return message.value.id === body.get(`favorite_id`)
+        } else {
+          return false
+        }
+      },
+    })
+
+    const fetchPromise = fetch(`/api/favorites`, {
+      method: `POST`,
+      body,
+    }).then((res) => {
+      if (!res.ok) {
+        throw new Response(`Response status: ${res.status}`, {
+          status: res.status,
+        })
+      }
+
+      return res
+    })
+
+    await Promise.all([findUpdatePromise, fetchPromise])
+
+    return fetchPromise
+  }
 }
 
 export default function Contact() {
@@ -37,8 +101,6 @@ export default function Contact() {
       return copy
     })
   )
-
-  console.log({ favorite })
 
   if (!contact) {
     return 404
@@ -87,61 +149,16 @@ export default function Contact() {
           >
             <button type="submit">Edit</button>
           </form>
-          <form
-            onSubmit={async (event) => {
-              event.preventDefault()
-              if (confirm(`Please confirm you want to delete this record.`)) {
-                await deleteContact(contact.id)
-                navigate(`/`)
-              }
-            }}
-          >
-            <button type="submit">Delete</button>
-          </form>
+          <Form method="DELETE">
+            <input type="hidden" name="id" value={contact.id} />
+            <button name="intent" value="delete" type="submit">
+              Delete
+            </button>
+          </Form>
         </div>
       </div>
     </div>
   )
-}
-
-export const clientAction = async ({ request }: ClientActionFunctionArgs) => {
-  console.log({ request })
-  const favoriteContactsShapeStream = getShapeStream(favoriteContactsShape())
-
-  console.log(`start form submit`, performance.now())
-  const body = await request.formData()
-
-  // Match to update stream.
-  const findUpdatePromise = matchStream({
-    stream: favoriteContactsShapeStream,
-    operations: [`insert`, `delete`],
-    matchFn: ({ operationType, message }) => {
-      if (operationType === `insert`) {
-        return message.value.contact_id === body.get(`contact_id`)
-      } else if (operationType === `delete`) {
-        return message.value.id === body.get(`favorite_id`)
-      } else {
-        return false
-      }
-    },
-  })
-
-  const fetchPromise = fetch(`/api/favorites`, {
-    method: `POST`,
-    body,
-  }).then((res) => {
-    if (!res.ok) {
-      throw new Response(`Response status: ${res.status}`, {
-        status: res.status,
-      })
-    }
-
-    return res
-  })
-
-  await Promise.all([findUpdatePromise, fetchPromise])
-
-  return fetchPromise
 }
 
 function Favorite({
@@ -155,24 +172,9 @@ function Favorite({
   const isFavorited = fetcher.formData
     ? fetcher.formData.get(`favorite`) === `true`
     : !!favorite
-  console.log(`fetcher state`, fetcher.state, performance.now())
-  console.log(
-    `shape & form in sync`,
-    {
-      form: fetcher?.formData?.get(`favorite`),
-      isFavorited,
-      favorite,
-    },
-    performance.now()
-  )
 
   return (
-    <fetcher.Form
-      method="post"
-      onSubmit={() => {
-        console.log(`submitting`)
-      }}
-    >
+    <fetcher.Form method="post">
       <input type="hidden" name="favorite_id" value={favorite?.id} />
       <input type="hidden" name="contact_id" value={contact_id} />
       <button
