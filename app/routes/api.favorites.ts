@@ -1,5 +1,6 @@
 import nodePkg from "@remix-run/node"
 const { Request, json, LoaderArgs, installGlobals } = nodePkg
+import type { ActionFunctionArgs } from "@remix-run/node"
 import { db } from "../utils/db"
 
 export async function action({ params, request }: ActionFunctionArgs) {

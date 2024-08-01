@@ -8,14 +8,21 @@ import {
   NavLink,
   useSearchParams,
   Outlet,
+  Form,
+  redirect,
 } from "@remix-run/react"
 import { Theme } from "@radix-ui/themes"
-import { useShape, preloadShape } from "@electric-sql/react"
+import { useShape, preloadShape, getShapeStream } from "@electric-sql/react"
 import { contactsShape } from "./shapes-defs"
 import { TextField, Flex, Heading, Text, Button, Link } from "@radix-ui/themes"
 import "@fontsource/instrument-serif/latin.css"
 import "@radix-ui/themes/styles.css"
 import "../.cache/typography.css"
+import type {
+  ClientLoaderFunctionArgs,
+  ClientActionFunctionArgs,
+} from "@remix-run/react"
+import { matchStream } from "./utils/match-stream"
 
 export const meta: MetaFunction = () => {
   return [
@@ -26,6 +33,40 @@ export const meta: MetaFunction = () => {
 
 export const clientLoader = async ({}: ClientLoaderFunctionArgs) => {
   return await preloadShape(contactsShape())
+}
+
+export const clientAction = async ({ request }: ClientActionFunctionArgs) => {
+  const contactsShapeStream = getShapeStream(contactsShape())
+
+  const formData = await request.formData()
+
+  // Match to update stream.
+  const findUpdatePromise = matchStream({
+    stream: contactsShapeStream,
+    operations: [`insert`],
+    // This is the only place we insert so just wait for the next insert and we're
+    // done.
+    matchFn: () => true,
+  })
+
+  const fetchPromise = fetch(`/api/contacts`, {
+    method: `POST`,
+    body: formData,
+  }).then((res) => {
+    if (!res.ok) {
+      throw new Response(`Response status: ${res.status}`, {
+        status: res.status,
+      })
+    }
+
+    return res
+  })
+
+  await Promise.all([findUpdatePromise, fetchPromise])
+
+  const res = await fetchPromise
+  const body = await res.json()
+  return redirect(`/contacts/${body.id}`)
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -86,16 +127,18 @@ export default function App() {
               <div id="search-spinner" aria-hidden hidden={true} />
               <div className="sr-only" aria-live="polite"></div>
             </form>
-            <form
+            <Form
               method="post"
-              onSubmit={async (event) => {
-                event.preventDefault()
-                const newContact = await createContact()
-                navigate(`/contacts/${newContact.id}/edit`)
-              }}
+              // onSubmit={async (event) => {
+              // event.preventDefault()
+              // const newContact = await createContact()
+              // navigate(`/contacts/${newContact.id}/edit`)
+              // }}
             >
-              <button type="submit">New</button>
-            </form>
+              <button type="submit" name="intent" value="new-contact">
+                New
+              </button>
+            </Form>
           </Flex>
           <Flex asChild direction="column" gap="3">
             <nav>

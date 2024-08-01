@@ -1,12 +1,11 @@
-import { useParams, useFetcher } from "@remix-run/react"
+import { useParams, useFetcher, useNavigate } from "@remix-run/react"
 import { useShape, getShapeStream, preloadShape } from "@electric-sql/react"
 import type {
   ClientLoaderFunctionArgs,
   ClientActionFunctionArgs,
 } from "@remix-run/react"
-import type { ActionFunctionArgs } from "@remix-run/node"
 import { contactsShape, favoriteContactsShape } from "../shapes-defs"
-import { ShapeStream, ChangeMessage } from "@electric-sql/next"
+import { matchStream } from "../utils/match-stream"
 
 export const clientLoader = async ({
   request,
@@ -18,6 +17,7 @@ export const clientLoader = async ({
 
 export default function Contact() {
   const params = useParams()
+  const navigate = useNavigate()
   const { data: contact, isUpToDate: isContactsReady } = useShape(
     contactsShape((res) => {
       const copy = { ...res }
@@ -104,59 +104,8 @@ export default function Contact() {
   )
 }
 
-function formDataToObject(formData) {
-  const object = {}
-  formData.forEach((value, key) => {
-    if (!object[key]) {
-      object[key] = []
-    }
-    object[key].push(value)
-  })
-  return object
-}
-
-async function matchStream({
-  stream,
-  operations,
-  matchFn,
-  timeout = 5000,
-}: {
-  stream: ShapeStream
-  operations: Array<`insert` | `update` | `delete`>
-  matchFn: (operationType: string, message: ChangeMessage<any>) => boolean
-  timeout?: number
-}): Promise<ChangeMessage<any>> {
-  console.log(`matchStream`, { operations })
-  return new Promise((resolve, reject) => {
-    const unsubscribe = stream.subscribe((messages) => {
-      console.log(`matchStream`, { messages })
-      messages.forEach((message) => {
-        if (
-          `key` in message &&
-          operations.includes(message.headers.action as OperationTypes)
-        ) {
-          if (matchFn(message.headers.action, message)) {
-            finish(message)
-          }
-        }
-      })
-    })
-
-    const timeoutId = setTimeout(() => {
-      console.error(`matchStream timed out after ${timeout}ms`)
-      reject(`matchStream timed out after ${timeout}ms`)
-    }, timeout)
-
-    function finish(message: ChangeMessage<any>) {
-      console.log(`finish`, message)
-      clearTimeout(timeoutId)
-      unsubscribe()
-      return resolve(message)
-    }
-  })
-}
-
 export const clientAction = async ({ request }: ClientActionFunctionArgs) => {
+  console.log({ request })
   const favoriteContactsShapeStream = getShapeStream(favoriteContactsShape())
 
   console.log(`start form submit`, performance.now())
@@ -166,7 +115,7 @@ export const clientAction = async ({ request }: ClientActionFunctionArgs) => {
   const findUpdatePromise = matchStream({
     stream: favoriteContactsShapeStream,
     operations: [`insert`, `delete`],
-    matchFn: (operationType, message) => {
+    matchFn: ({ operationType, message }) => {
       if (operationType === `insert`) {
         return message.value.contact_id === body.get(`contact_id`)
       } else if (operationType === `delete`) {
@@ -177,7 +126,7 @@ export const clientAction = async ({ request }: ClientActionFunctionArgs) => {
     },
   })
 
-  const fetchPromise = fetch(`/favorite`, {
+  const fetchPromise = fetch(`/api/favorites`, {
     method: `POST`,
     body,
   }).then((res) => {
@@ -202,7 +151,7 @@ function Favorite({
   favorite: Record<string, any> | null
   contact_id: string
 }) {
-  const fetcher = useFetcher()
+  const fetcher = useFetcher({ key: `favorite-star` })
   const isFavorited = fetcher.formData
     ? fetcher.formData.get(`favorite`) === `true`
     : !!favorite
@@ -218,7 +167,12 @@ function Favorite({
   )
 
   return (
-    <fetcher.Form method="post">
+    <fetcher.Form
+      method="post"
+      onSubmit={() => {
+        console.log(`submitting`)
+      }}
+    >
       <input type="hidden" name="favorite_id" value={favorite?.id} />
       <input type="hidden" name="contact_id" value={contact_id} />
       <button
