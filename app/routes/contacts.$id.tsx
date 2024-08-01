@@ -6,6 +6,7 @@ import type {
 } from "@remix-run/react"
 import type { ActionFunctionArgs } from "@remix-run/node"
 import { contactsShape, favoriteContactsShape } from "../shapes-defs"
+import { ShapeStream, ChangeMessage } from "@electric-sql/next"
 
 export const clientLoader = async ({
   request,
@@ -114,69 +115,83 @@ function formDataToObject(formData) {
   return object
 }
 
-export const clientAction = async ({ request }: ClientActionFunctionArgs) => {
-  async function findUpdate({ id, contact_id }) {
-    console.log(`finding the update`)
-    const favoriteContactsShapeStream = getShapeStream(favoriteContactsShape())
-    return new Promise((resolve) => {
-      const unsubscribe = favoriteContactsShapeStream.subscribe((messages) => {
-        console.log({ messages })
+async function matchStream({
+  stream,
+  operations,
+  matchFn,
+  timeout = 5000,
+}: {
+  stream: ShapeStream
+  operations: Array<`insert` | `update` | `delete`>
+  matchFn: (operationType: string, message: ChangeMessage<any>) => boolean
+  timeout?: number
+}): Promise<ChangeMessage<any>> {
+  console.log(`matchStream`, { operations })
+  return new Promise((resolve, reject) => {
+    const unsubscribe = stream.subscribe((messages) => {
+      console.log(`matchStream`, { messages })
+      messages.forEach((message) => {
         if (
-          messages.some((message) => {
-            if (
-              message.headers.action &&
-              message.key?.includes(`favorite_contacts`)
-            ) {
-              console.log({ message })
-              return (
-                message.value?.id === id ||
-                message.value?.contact_id === contact_id
-              )
-            } else {
-              return false
-            }
-          })
+          `key` in message &&
+          operations.includes(message.headers.action as OperationTypes)
         ) {
-          unsubscribe()
-          resolve(null)
+          if (matchFn(message.headers.action, message)) {
+            finish(message)
+          }
         }
       })
     })
-  }
+
+    const timeoutId = setTimeout(() => {
+      console.error(`matchStream timed out after ${timeout}ms`)
+      reject(`matchStream timed out after ${timeout}ms`)
+    }, timeout)
+
+    function finish(message: ChangeMessage<any>) {
+      console.log(`finish`, message)
+      clearTimeout(timeoutId)
+      unsubscribe()
+      return resolve(message)
+    }
+  })
+}
+
+export const clientAction = async ({ request }: ClientActionFunctionArgs) => {
+  const favoriteContactsShapeStream = getShapeStream(favoriteContactsShape())
 
   console.log(`start form submit`, performance.now())
   const body = await request.formData()
-  const findUpdatePromise = findUpdate({
-    id: body.get(`favorite_id`),
-    contact_id: body.get(`contact_id`),
+
+  // Match to update stream.
+  const findUpdatePromise = matchStream({
+    stream: favoriteContactsShapeStream,
+    operations: [`insert`, `delete`],
+    matchFn: (operationType, message) => {
+      if (operationType === `insert`) {
+        return message.value.contact_id === body.get(`contact_id`)
+      } else if (operationType === `delete`) {
+        return message.value.id === body.get(`favorite_id`)
+      } else {
+        return false
+      }
+    },
   })
-  console.time(`post form`)
+
   const fetchPromise = fetch(`/favorite`, {
     method: `POST`,
     body,
   }).then((res) => {
-    console.timeEnd(`post form`)
+    if (!res.ok) {
+      throw new Response(`Response status: ${res.status}`, {
+        status: res.status,
+      })
+    }
+
     return res
   })
 
-  // TODO
-  // - implement
-  // - how to handle errors? Abort listening?
-  // - perhaps a default timeout that throws error?
-  // - and/or function returns promise + unsubscribe function?
-  // let updatePromise
-  // if (body.get(`favorite`) === `true`) {
-  // updatePromise = stream.awaitInsert(
-  // (message) => message.value.contact_id === body.get(`id`)
-  // )
-  // } else {
-  // updatePromise = stream.awaitDelete(
-  // (message) => message.value.contact_id === body.get(`id`)
-  // )
-  // }
   await Promise.all([findUpdatePromise, fetchPromise])
 
-  console.log(`leaving`)
   return fetchPromise
 }
 
