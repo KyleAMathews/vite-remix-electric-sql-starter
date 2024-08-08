@@ -49,7 +49,7 @@ export const clientAction = async ({ request }: ClientActionFunctionArgs) => {
 
 export default function EditContact() {
   const { id } = useParams()
-  const { data: contact, isUpToDate: isContactsReady } = useShape(
+  const { data: contact } = useShape(
     contactsShape((res) => {
       const copy = { ...res }
       copy.data = copy.data.find((c) => {

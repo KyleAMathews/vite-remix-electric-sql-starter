@@ -168,7 +168,7 @@ function Favorite({
   favorite: Record<string, any> | null
   contact_id: string
 }) {
-  const fetcher = useFetcher({ key: `favorite-star` })
+  const fetcher = useFetcher()
   const isFavorited = fetcher.formData
     ? fetcher.formData.get(`favorite`) === `true`
     : !!favorite

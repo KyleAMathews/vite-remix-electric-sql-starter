@@ -1,14 +1,5 @@
-import nodePkg from "@remix-run/node"
-const { Request, json, LoaderArgs, installGlobals } = nodePkg
 import type { LoaderFunctionArgs } from "@remix-run/node"
-import { Client } from "undici"
-import http from "http"
 
-installGlobals({ nativeFetch: true })
-
-const client = new Client(`http://localhost:3000`)
-// TODO
-// validate tables that are allowed
 export async function loader({
   params,
   request,

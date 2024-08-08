@@ -27,7 +27,7 @@ You need Docker/Docker Compose installed.
 
 Run Postgres/ElectricSQL:
 
-`npm run backend:start`
+`npm run backend:up`
 
 Start the dev server
 
